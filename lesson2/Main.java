@@ -3,7 +3,7 @@ package lesson2;
 public class Main {
     public static int arraySum(String[][] twoDimensionalArray) throws MyArraySizeException, MyArrayDataException {
         if (twoDimensionalArray.length != 4) {
-            throw new MyArraySizeException("Длина массива != 4");
+            throw new MyArraySizeException("Длина массива не равна 4");
         }
 
         for (String[] array : twoDimensionalArray) {
