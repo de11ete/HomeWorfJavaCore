@@ -2,7 +2,7 @@ package lesson4;
 
 import java.util.*;
 
-class HomeWork3 {
+class HomeWork4 {
 
     public static void main(String[] args) {
 
