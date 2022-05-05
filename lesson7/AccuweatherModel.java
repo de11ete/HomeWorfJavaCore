@@ -1,12 +1,14 @@
 package lesson6;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lesson6.project.entity.Weather;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.util.List;
 
 public class AccuweatherModel implements WeatherModel {
     //http://dataservice.accuweather.com/forecasts/v1/daily/1day/
@@ -16,6 +18,7 @@ public class AccuweatherModel implements WeatherModel {
     private static final String FORECASTS = "forecasts";
     private static final String VERSION = "v1";
     private static final String DAILY = "daily";
+    private static final String ONE_DAY = "1day";
     private static final String FIVE_DAYS = "5day";
     private static final String API_KEY = "UcXX9xTHR6ZeefPImvDAw9hKRwTKf66E";
     private static final String API_KEY_QUERY_PARAM = "apikey";
@@ -25,6 +28,8 @@ public class AccuweatherModel implements WeatherModel {
 
     private static final OkHttpClient okHttpClient = new OkHttpClient();
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private DatabaseRepository databaseRepository = new DatabaseRepository();
 
 
     @Override
@@ -49,6 +54,13 @@ public class AccuweatherModel implements WeatherModel {
                 Response fiveDaysForecastResponse = okHttpClient.newCall(request).execute();
                 String weatherResponse = fiveDaysForecastResponse.body().string();
                 System.out.println(weatherResponse);
+                
+                String date = objectMapper.readTree(weatherResponse).at("/DailyForecasts").get(0).at("/Date").asText();
+                String temperature = objectMapper.readTree(weatherResponse).at("/DailyForecasts").get(0).at("/Temperature/Maximum/Value").asText();
+                String temperature_unit = objectMapper.readTree(weatherResponse).at("/DailyForecasts").get(0).at("/Temperature/Maximum/Unit").asText();
+                String weather_text = objectMapper.readTree(weatherResponse).at("/DailyForecasts").get(0).at("/Day/IconPhrase").asText();
+
+                //databaseRepository.saveWeatherToDatabase(....);
 
                 break;
         }
@@ -82,6 +94,11 @@ public class AccuweatherModel implements WeatherModel {
         return cityKey;
     }
 
+    @Override
+    public List<Weather> getSavedToDBWeather() {
+        return databaseRepository.getSavedToDBWeather();
+    }
+
     public static void main(String[] args) throws IOException {
         UserInterfaceView userInterfaceView = new UserInterfaceView();
         userInterfaceView.runInterface();
@@ -91,3 +108,4 @@ public class AccuweatherModel implements WeatherModel {
         accuweatherModel.getWeather("Petersburg", Period.FIVE_DAYS);
     }
 }
+
